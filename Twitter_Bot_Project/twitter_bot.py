@@ -1,5 +1,7 @@
 import tweepy
 import time
+import csv
+
 FILE_NAME = 'lastSeenID.txt'
 
 CONSUMER_KEY = 'MVDkHczOFTe6XveqJWmSpc4x0'
@@ -10,8 +12,7 @@ ACCESS_SECRET = 'XvA1hmTDln807bjZCw480xXjWJfXM6BPlPwMybVVl8VUS'
 #authentication
 auth = tweepy.OAuthHandler(CONSUMER_KEY,CONSUMER_SECRET)
 auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
-api = tweepy.API(auth)
-
+api = tweepy.API(auth, wait_on_rate_limit=True)
 print('This is my twitter bot')
 
 
@@ -44,6 +45,37 @@ def replyToTweets():
             print('responding back...')
             api.update_status('@' + mention.user.screen_name + ' #HelloWorld back to you!', mention.id)
 
-while True:
-    replyToTweets()
-    time.sleep(15)
+def locationReply():
+    print('Retrieving and replying to tweets...')
+    with open('philly_locations.csv') as csvFile:
+        csvReader = csv.reader(csvFile, delimiter = ';')
+        botDict = dict((rows[0], rows[1]) for rows in csvReader)
+        #print(myDict)
+        location = [*botDict]
+        lastSeenID = retrieveLastSeenID(FILE_NAME)
+        mentions = api.mentions_timeline(lastSeenID, tweet_mode = 'extended')
+        
+        #Starting from the first mention tweet
+        for mention in reversed(mentions):
+            print('\n' + str(mention.id) + ' - ' + mention.full_text + '\n')
+            #The ID number of the mention tweet
+            lastSeenID = mention.id
+            storeLastSeenID(lastSeenID, FILE_NAME)
+            #for each key in the dictionary
+            for locationKey in botDict:
+                #if the key is found in the tweet
+                if locationKey in mention.full_text:
+                    print('Found a location in Philly')
+                    print('Responding back with the location\'s address')
+                    #reply back to the user
+                    api.update_status('@' + mention.user.screen_name + ' ' + botDict[locationKey], mention.id)
+                    print(botDict[locationKey])
+
+
+if __name__== "__main__":
+    while True:
+        #replyToTweets()
+        locationReply()
+        time.sleep(15)
+
+#DEV note: use 1193669727366893568 (first tweet id) for testing
