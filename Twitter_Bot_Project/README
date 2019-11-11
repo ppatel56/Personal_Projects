@@ -1,0 +1,13 @@
+Parth Patel
+Twitter Bot Project
+
+Description:
+This project was to utilize Twitter API in python with the tweepy library and create a Twitter Bot.
+The Twitter Bot recieves a mention tweet from a user and checks if the user has tweeted out a famous 
+location name in Philadelphia that is in the .csv file in the project. If the tweet has a location name, 
+then the bot will reply with the location's address. If the tweet doesn't have a location name, then the
+bot does nothing.
+
+Issues:
+There is an issue with the tweepy library. The issue is that sometimes the api.update_status might throw an 
+error for duplicate text when the bot checks the tweets from the user.
