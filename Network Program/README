@@ -1,0 +1,31 @@
+Description: 
+
+The program is networking program in which multiple clients connect to one server 
+and send a string to the server. The server would then process those inputs from the clients and determine 
+if each individual string's spelling is "correct" or "incorrect".
+
+Because there are multiple clients connecting to the server and sending their own string, the server needs 
+multiple worker threads to help check if the strings are spelled correctly. This way, the user wouldn't have
+to wait too long if there was only one thread taking in multiple inputs. The number of worker threads corresponds
+to the number of clients in the program, which is four. There is also another thread in the program called the 
+log thread which takes the final string message "word is correct(incorrect) spelling" to a log text file.
+The final thread is the main thread of the program, or the original thread.
+
+There are two queues used in the program, a connection queue and a log queue. The reason why C++ is used for this project
+is because there is a provided queue library in the language. The connection queue is a queue of ints in where all of the
+client sockets will be stored. A worker thread will take a client socket and get the string that client sends and checks 
+its spelling then stores the message onto the log queue. The log queue is a queue of strings containing the messages of 
+whether word is spelled correctly or not. The log thread will take each message and append them to the log text file.
+
+Since we're dealing with a multi-threaded program, there will be problems in concurrency. So in order to avoid the
+problems such as race condition or more specifically the producer/consumer problem, the program has multiple locks 
+and conditional variables. There are two locks, one for each queue in the program. There four conditional variables, 
+two for each queue (each has a fill condition and empty condition). They are put around the critical sections of the 
+program in order to create mutual exclusion, where only one thread can be in the critical section. The critical sections
+are where the threads access a shared resource, but only one thread should access it at a time. In this program's case, the 
+shared variables are the two queues, so the critical sections are when we push a data item onto the queues or pop them out.
+
+We use the pthread.h library to help provide the locks and conditional variable data types and functions. The locks are 
+pthread_mutex_t and the condition variables are pthread_cond_t. There are special functions to allow the lock and unlock process around 
+the critical sections and special functions to allow the condition variables to wait when queue buffer is full or empty, or signal the 
+condition variable if its full or empty.
