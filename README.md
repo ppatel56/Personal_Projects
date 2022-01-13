@@ -1,2 +1,2 @@
-# Personal_Projects
+# Personal Projects
 Repository for personal projects
